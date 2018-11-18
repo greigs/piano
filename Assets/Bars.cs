@@ -6,7 +6,7 @@ using System.Threading;
 using Kazedan.Construct;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour {
+public class Bars : MonoBehaviour {
     private MIDISequencer sequencer;
 
     //SpriteRenderer sr;
