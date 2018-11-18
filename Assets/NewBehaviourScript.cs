@@ -19,17 +19,10 @@ public class NewBehaviourScript : MonoBehaviour {
 	    Thread t = new Thread(() => { sequencer.Init(); });
 	    t.Start();
 	    t.Join();
-
-
-
-
+        
 	    sequencer.ShowDebug = true;
 	    
-	    bool exists = File.Exists("C:/Users/greig/Documents/Piano/Assets/bach.mid");
-	    sequencer.Load("C:\\Users\\greig\\Documents\\Piano\\Assets\\bach.mid");
-        //sr = GetComponent<SpriteRenderer>();
-
-        //sprites = Resources.LoadAll<Sprite>(".");
+	    sequencer.Load("C:/repo/Piano/Assets/bach.mid");
     }
 
     private void Sequencer_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
