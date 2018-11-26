@@ -9,7 +9,7 @@ using AudioSynthesis.Midi;
 
 namespace UnityMidi
 {
-    [RequireComponent(typeof(AudioSource))]
+    //[RequireComponent(typeof(AudioSource))]
     public class MidiPlayer : MonoBehaviour
     {
         [SerializeField] StreamingAssetResouce bankSource;
@@ -21,19 +21,19 @@ namespace UnityMidi
         [SerializeField] int bufferSize = 1024;
         PatchBank bank;
         MidiFile midi;
-        Synthesizer synthesizer;
+        public Synthesizer synthesizer;
         AudioSource audioSource;
         MidiFileSequencer sequencer;
         int bufferHead;
         float[] currentBuffer;
 
-        public AudioSource AudioSource { get { return audioSource; } }
+        //public AudioSource AudioSource { get { return audioSource; } }
 
-        public MidiFileSequencer Sequencer { get { return sequencer; } }
+        //public MidiFileSequencer Sequencer { get { return sequencer; } }
 
-        public PatchBank Bank { get { return bank; } }
+        //public PatchBank Bank { get { return bank; } }
 
-        public MidiFile MidiFile { get { return midi; } }
+        //public MidiFile MidiFile { get { return midi; } }
 
         public void Awake()
         {
@@ -88,6 +88,11 @@ namespace UnityMidi
             sequencer.LoadMidi(midi);
         }
 
+        public void ProcessMidiMessage(int channel, int command, int data1, int data2)
+        {
+            synthesizer.ProcessMidiMessage(channel,command,data1,data2);
+        }
+
         public void Play()
         {
             sequencer.Play();
@@ -96,7 +101,7 @@ namespace UnityMidi
 
         void OnAudioFilterRead(float[] data, int channel)
         {
-            Debug.Assert(this.channel == channel);
+            //Debug.Assert(this.channel == channel);
             int count = 0;
             while (count < data.Length)
             {

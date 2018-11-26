@@ -31,7 +31,11 @@ namespace UnityMidi
 
         public Stream OpenResourceForRead()
         {
-            WWW file = new WWW(Application.dataPath + "/" + streamingAssetPath);
+
+            //WWW file = new WWW("jar:file://" + Application.dataPath + "!/assets/" + streamingAssetPath);
+
+            WWW file = new WWW("file://" + Application.dataPath + "/StreamingAssets/" + streamingAssetPath);
+            //WWW file = new WWW(Application.dataPath + "/" + streamingAssetPath);
             //WWW file = new WWW("jar:file://" + Application.dataPath + "!/assets/" + streamingAssetPath);
             var data = file.bytes;
             var length = data.LongLength;

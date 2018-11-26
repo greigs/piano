@@ -15,11 +15,13 @@ using AudioSynthesis.Bank;
 using System.Collections.Generic;
 using AudioSynthesis.Midi;
 using AudioSynthesis.Bank.Patches;
+using AudioSynthesis.Midi.Event;
 
 namespace AudioSynthesis.Synthesis
 {
     public partial class Synthesizer
     {
+        public event EventHandler<MidiMessage> MidiEvent;
         #region Fields
         //synth variables
         internal float[] sampleBuffer;
@@ -275,7 +277,11 @@ namespace AudioSynthesis.Synthesis
                     for (int i = 0; i < midiEventCounts[x]; i++)
                     {
                         MidiMessage m = midiEventQueue.Dequeue();
-                        ProcessMidiMessage(m.channel, m.command, m.data1, m.data2);
+                        if (MidiEvent != null)
+                        {
+                            MidiEvent.Invoke(this, m);
+                        }
+                        //ProcessMidiMessage(m.channel, m.command, m.data1, m.data2);
                     }
                 }
                 //voice processing loop

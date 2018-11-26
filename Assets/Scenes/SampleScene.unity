@@ -122,7 +122,6 @@ GameObject:
   m_Component:
   - component: {fileID: 33404077}
   - component: {fileID: 33404080}
-  - component: {fileID: 33404079}
   - component: {fileID: 33404076}
   - component: {fileID: 33404078}
   m_Layer: 0
@@ -147,6 +146,8 @@ MonoBehaviour:
     streamingAssetPath: CSharpSynth/GMBank.bank
   midiSource:
     streamingAssetPath: ExampleMidis/pathetique-2.mid
+  loadOnAwake: 1
+  playOnAwake: 1
   channel: 1
   sampleRate: 44100
   bufferSize: 1024
@@ -177,26 +178,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bar: {fileID: 1043324551}
   pooledMax: 50
---- !u!114 &33404079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 33404075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8bab6052e9284ba4bf69ef6dd5b10b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bankSource:
-    streamingAssetPath: CSharpSynth/GMBank.bank
-  midiSource:
-    streamingAssetPath: ExampleMidis/pathetique-2.mid
-  loadOnAwake: 0
-  playOnAwake: 0
-  channel: 1
-  sampleRate: 44100
-  bufferSize: 1024
 --- !u!82 &33404080
 AudioSource:
   m_ObjectHideFlags: 0

@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using AudioSynthesis.Midi;
+using AudioSynthesis.Midi.Event;
 using AudioSynthesis.Sequencer;
 using AudioSynthesis.Synthesis;
 using UnityEngine;
@@ -14,11 +16,13 @@ namespace Kazedan.Construct
 {
     public class MIDISequencer : IDisposable
     {
-        public int Delay { get; set; } = 2000;
+
+        
+        public int Delay { get; set; } = 1000;
         public bool ShowDebug { get; set; } = true;
         private int LoadingStatus { get; set; } = -1;
 
-        private MidiPlayer MidiPlayer;
+        public Bars MidiPlayer;
 
         private long LastFancyTick { get; set; }
         public bool Stopped { get; private set; } = true;
@@ -70,12 +74,12 @@ namespace Kazedan.Construct
 
             LoadingStatus = 0;
             // Create handles to MIDI devices
+            MidiPlayer.synthesizer.MidiEvent += PlayerHandler;
 
 
-            
 
-            MidiPlayer.Awake();
-                        
+            //MidiPlayer.Awake();
+
             //var music = MidiMusic.Read(System.IO.File.OpenRead("mysong.mid"));
             //output.Send(new byte[] { 0xC0, GeneralMidi.Instruments.AcousticGrandPiano }, 0, 2, 0);
             //player = new MidiPlayer(new MidiMusic(), output);
@@ -136,78 +140,80 @@ namespace Kazedan.Construct
 
 
         }
+        
 
-        //private void PlayerHandler(MidiEvent e)
-        //{
+        private void PlayerHandler(object sender, MidiMessage e)
+        {
 
 
-        //    var cmd = e.EventType;
-        //    byte data1 = 0;
-        //    byte data2 = 0;
-        //    var channel = 1;
+            var cmd = e.command;
+            int data1 = 0;
+            int data2 = 0;
+            var channel = 1;
 
-        //    if (cmd == MidiEvent.NoteOff || (cmd == MidiEvent.NoteOn))
-        //    {
-        //        data1 = e.Lsb;
-        //        data2 = e.Msb;
-        //    }
+            if (cmd == (int)MidiEventTypeEnum.NoteOff || (cmd == (int)MidiEventTypeEnum.NoteOn))
+            {
+                data1 = e.data1;
+                data2 = e.data2;
+            }
 
-        //    if (cmd == MidiEvent.NoteOff || (cmd == MidiEvent.NoteOn && data2 == 0))
-        //    {
-        //        if (NoteManager.LastPlayed[channel, data1] != null)
-        //        {
-        //            Note n = NoteManager.LastPlayed[channel, data1];
-        //            n.Playing = false;
-        //        }
-        //    }
-        //    else if (cmd == MidiEvent.NoteOn)
-        //    {
-        //        Note n = new Note
-        //        {
-        //            Key = data1,
-        //            Length = 0,
-        //            Playing = true,
-        //            Position = 0,
-        //            Time = Stopwatch.ElapsedMilliseconds,
-        //            Channel = channel,
-        //            Velocity = data2
-        //        };
-        //        lock (NoteManager.Notes)
-        //            NoteManager.Notes.Add(n);
-        //        if (NoteManager.LastPlayed[channel, data1] != null)
-        //            NoteManager.LastPlayed[channel, data1].Playing = false;
-        //        NoteManager.LastPlayed[channel, data1] = n;
-        //    }
+            if (cmd == (int)MidiEventTypeEnum.NoteOff || (cmd == (int)MidiEventTypeEnum.NoteOn && data2 == 0))
+            {
+                if (NoteManager.LastPlayed[channel, data1] != null)
+                {
+                    Note n = NoteManager.LastPlayed[channel, data1];
+                    n.Playing = false;
+                }
+            }
+            else if (cmd == (int)MidiEventTypeEnum.NoteOn)
+            {
+                Note n = new Note
+                {
+                    Key = data1,
+                    Length = 0,
+                    Playing = true,
+                    Position = 0,
+                    Time = Stopwatch.ElapsedMilliseconds,
+                    Channel = channel,
+                    Velocity = data2
+                };
+                lock (NoteManager.Notes)
+                    NoteManager.Notes.Add(n);
+                if (NoteManager.LastPlayed[channel, data1] != null)
+                    NoteManager.LastPlayed[channel, data1].Playing = false;
+                NoteManager.LastPlayed[channel, data1] = n;
+            }
 
-        //    lock (NoteManager.Backlog)
-        //    {
-        //        NoteManager.Backlog.Enqueue(new Event(delegate
-        //        {
-        //            output.Send(e.Data,0,100,0);
-        //            //outDevice.Send(args.Message);
-        //            if (cmd == MidiEvent.NoteOff || (cmd == MidiEvent.NoteOn && data2 == 0))
-        //            {
-        //                if (Keyboard.KeyPressed[data1] > 0)
-        //                    Keyboard.KeyPressed[data1]--;
-        //            }
-        //            else if (cmd == MidiEvent.NoteOn)
-        //            {
-        //                Keyboard.KeyPressed[data1]++;
-        //            }
-        //            else if (cmd == MidiEvent.CC)
-        //            {
-        //                if (data1 == 0x07)
-        //                    Keyboard.ChannelVolume[channel] = data2;
-        //            }
-        //            else if (cmd == MidiEvent.Pitch)
-        //            {
-        //                int pitchValue = Get14BitValue(data1, data2);
-        //                Keyboard.Pitchwheel[channel] = pitchValue;
-        //            }
-        //        }, Stopwatch.ElapsedMilliseconds, Delay));
-        //    }
+            lock (NoteManager.Backlog)
+            {
+                NoteManager.Backlog.Enqueue(new Event(delegate
+                {
+                    MidiPlayer.ProcessMidiMessage(e.channel,e.command,e.data1,e.data2);
+                    //output.Send(e.Data, 0, 100, 0);
+                    //outDevice.Send(args.Message);
+                    if (cmd == (int)MidiEventTypeEnum.NoteOff || (cmd == (int)MidiEventTypeEnum.NoteOn && data2 == 0))
+                    {
+                        if (Keyboard.KeyPressed[data1] > 0)
+                            Keyboard.KeyPressed[data1]--;
+                    }
+                    else if (cmd == (int)MidiEventTypeEnum.NoteOn)
+                    {
+                        Keyboard.KeyPressed[data1]++;
+                    }
+                    else if (cmd == (int)MidiEventTypeEnum.Controller)
+                    {
+                        if (data1 == 0x07)
+                            Keyboard.ChannelVolume[channel] = data2;
+                    }
+                    else if (cmd == (int)MidiEventTypeEnum.PitchBend)
+                    {
+                        int pitchValue = Get14BitValue(data1, data2);
+                        Keyboard.Pitchwheel[channel] = pitchValue;
+                    }
+                }, Stopwatch.ElapsedMilliseconds, Delay));
+            }
 
-        //}
+        }
 
         //public void Load(string file)
         //{
